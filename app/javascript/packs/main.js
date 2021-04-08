@@ -53,9 +53,11 @@
 //
 import TurbolinksAdapter from "vue-turbolinks";
 import Vue from "vue/dist/vue.esm";
+import ChatList from "./components/ChatList";
 import App from "../app.vue";
 
 Vue.use(TurbolinksAdapter);
+Vue.component("chat-list", ChatList);
 
 document.addEventListener("turbolinks:load", () => {
   const app = new Vue({
