@@ -54,7 +54,7 @@
 import TurbolinksAdapter from "vue-turbolinks";
 import ActionCableVue from "actioncable-vue";
 import Vue from "vue/dist/vue.esm";
-import ChatList from "./components/ChatList";
+import UserList from "./components/UserList";
 import ChatBox from "./components/ChatBox";
 import App from "../app.vue";
 
@@ -67,7 +67,7 @@ const actionCableVueOptions = {
 
 Vue.use(TurbolinksAdapter);
 Vue.use(ActionCableVue, actionCableVueOptions);
-Vue.component("chat-list", ChatList);
+Vue.component("user-list", UserList);
 Vue.component("chat-box", ChatBox);
 
 document.addEventListener("turbolinks:load", () => {

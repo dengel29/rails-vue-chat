@@ -11,6 +11,11 @@ class UserListChannel < ApplicationCable::Channel
     current_user.appear(on: data['appearing_on'])
   end
 
+  def send_chat_invitation(data)
+    # create chatroom with current user, target user
+    
+  end
+
   def away
     current_user.away
   end
