@@ -8,7 +8,12 @@ module ApplicationCable
 
     private
     def find_user
-      User.find_by(id: cookies.signed[:current_user_id]) || reject_unauthorized_connection
+      # User.find_by(id: cookies.encrypted[:current_user_id]) || reject_unauthorized_connection
+      if (current_user = env["warden"].user)
+        current_user
+      else
+        reject_unauthorized_connection
+      end
     end
   end
 end

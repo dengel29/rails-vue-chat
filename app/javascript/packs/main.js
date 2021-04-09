@@ -52,12 +52,23 @@
 // Then uncomment the code block below:
 //
 import TurbolinksAdapter from "vue-turbolinks";
+import ActionCableVue from "actioncable-vue";
 import Vue from "vue/dist/vue.esm";
 import ChatList from "./components/ChatList";
+import ChatBox from "./components/ChatBox";
 import App from "../app.vue";
 
+const actionCableVueOptions = {
+  debug: true,
+  debugLevel: "error",
+  connectionUrl: "ws://localhost:3000/cable",
+  connectImmediately: true,
+};
+
 Vue.use(TurbolinksAdapter);
+Vue.use(ActionCableVue, actionCableVueOptions);
 Vue.component("chat-list", ChatList);
+Vue.component("chat-box", ChatBox);
 
 document.addEventListener("turbolinks:load", () => {
   const app = new Vue({
