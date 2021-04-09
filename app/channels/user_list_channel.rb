@@ -1,6 +1,6 @@
 class UserListChannel < ApplicationCable::Channel
   def subscribed
-    current_user.appear(current_user)
+    current_user.appear(current_user) 
   end
 
   def unsubscribed
@@ -11,9 +11,12 @@ class UserListChannel < ApplicationCable::Channel
     current_user.appear(on: data['appearing_on'])
   end
 
-  def send_chat_invitation(data)
+  def send_invitation(data)
     # create chatroom with current user, target user
-    
+    puts data
+    puts "invitation sent from #{data['host_id']} to #{data['target_user_id']}"
+    # build_chat(data[''])
+    # ChatRoom.new()
   end
 
   def away

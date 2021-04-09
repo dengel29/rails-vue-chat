@@ -4,8 +4,8 @@
 
       <h1>we're in the chats</h1>
       <ul>
-        <li v-for="user in users" :key="user.id" :data-user-id="user.id">
-          {{user.email}} | <button @click="startChatWith($event)">Up vote</button>
+        <li v-for="user in users" :key="user.id" :data-user-id="user.id" @click="startChatWith($event)">
+          {{user.email}}
 
         </li>
       </ul>
@@ -17,7 +17,7 @@
 export default {
   data: function () {
     return {
-      currentUser: null
+      currentUserId: null
     }
   },
   channels: {
@@ -41,12 +41,13 @@ export default {
   props: ["users"],
   methods: {
     startChatWith: function (e) {
+      console.log(e.target.dataset.userId)
       this.$cable.perform({
         channel: 'UserListChannel',
         action: 'send_invitation',
         data: {
-          hostId: this.currentUserId,
-          targetUserId: e.target.dataset.userId
+          host_id: this.currentUserId,
+          target_user_id: e.target.dataset.userId
         }
       })
     },
@@ -60,7 +61,7 @@ export default {
     this.$cable.subscribe({
       channel: 'UserListChannel'
     });
-    this.hostId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user')
+    this.currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
   }
 }
 </script>
