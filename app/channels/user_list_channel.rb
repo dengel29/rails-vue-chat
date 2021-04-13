@@ -1,6 +1,7 @@
 class UserListChannel < ApplicationCable::Channel
   def subscribed
-    current_user.appear(current_user) 
+    current_user.appear(current_user)
+    stream_from 'user_list'
   end
 
   def unsubscribed

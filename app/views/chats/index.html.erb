@@ -1,4 +1,4 @@
-<div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
-  <user-list :users=<%=  @users.to_json%>></user-list>
-  <chat-box></chat-box>
-</div>
+<parent-container 
+    :users=<%= @users.to_json %>
+  >
+  </parent-container>
