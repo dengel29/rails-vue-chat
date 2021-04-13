@@ -5,7 +5,9 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   
   # has_many :chat_rooms, through: :chat_participants
+  has_many :chat_participants
   has_many :messages, through: :chat_participants
+  has_many :chat_rooms, through: :chat_participants
   def appear(user)
     ActionCable.server.broadcast("all_users", { body: "#{user.username} is now online" })
   end
