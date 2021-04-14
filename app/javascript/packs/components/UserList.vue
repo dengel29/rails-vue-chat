@@ -52,7 +52,6 @@ export default {
     //   })
     // },
     handleClick: function(e) {
-      console.log(e)
       let targetUserId = Number(e.target.dataset.userId)
       this.$emit("buttonClicked", {
         targetUserId: targetUserId

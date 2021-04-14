@@ -4,8 +4,10 @@
       <h1>{{selectedChat.username}}</h1>
     </div>
     <div class="input__container">
-      <input type="text" name="message-input" id="">
-      <button>Send</button>
+      <form action="" class="input__inner" v-on:submit.prevent="onSubmit">
+        <textarea type="text" name="message-input" id="message-input" ref="chatinput"></textarea>
+        <input type="submit" value="submit">
+      </form>
     </div>
   </div>
 </template>
@@ -16,23 +18,22 @@ export default {
     return {
     }
   },
-  channels: {
-    // UserListChannel: {
-    //   connected() {
-    //     console.log("connected to meat channel")
-    //   },
-    //   rejected() {},
-    //   received(data) {},
-    //   disconnected() {}
-    // }
-  },
   props: ["selectedChat"],
   methods: {
-    sendMessage: function (e) {
+    onSubmit: function (e) {
+      console.log(this.$refs.chatinput.value)
+      let messageData = {
+        message: this.$refs.chatinput.value,
+        senderId: null,
+        chatRoomId: null
+      }
+      // let targetUserId = Number(e.target.dataset.userId)
+      // this.$emit("buttonClicked", {
+      //   targetUserId: targetUserId
+      // })
     },
   },
   mounted() {
-    console.log(this.selectedChat, "coming from the chatbox")
   }
 }
 </script>
@@ -57,14 +58,29 @@ export default {
     height: 20%;
     border: 1px solid darkslategray;
     display:flex;
+    align-content: center;
+  }
+
+  .input__inner {
+    display:flex;
+    width:100%;
     align-items:center;
     justify-content: space-between;
     padding-left: .4em;
     padding-right: 1em;
-    input[type="text"] {
+    textarea {
       padding-top: 1em;
       padding-bottom: 1em;
-      width:85%
+      width:85%;
+      height:50%;
+      border: 0px 1px 0px 0px solid red
+    }
+    input[type="submit"] {
+      background-color: darkslateblue;
+      color: white;
+      border-radius: 3px;
+      width: 4.6em;
+      height: 3em;
     }
   }
 

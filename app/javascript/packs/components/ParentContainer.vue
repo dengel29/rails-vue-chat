@@ -1,7 +1,7 @@
 <template>
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
     <user-list :users="users" @buttonClicked="chatSelected"></user-list>
-    <chat-box :selectedChat="selectedChat"></chat-box>
+    <chat-box :selectedUser="selectedUser" :selectedChat="selectedChat" @buttonClicked="messageSent"></chat-box>
   </div>
 </template>
 
@@ -9,19 +9,20 @@
   export default {
     data: function(){
       return {
-        selectedChat: {
-          username: 'select a chat'
+        selectedUser: {
+          username: 'select a chat',
+          id: null
         }
       }
     },
     channels: {
       ChatChannel: {
-        connected() {
+        connected(data) {
           console.log("connected to the chat channel")
         },
         rejected() {},
         received(data) {
-          console.log(data)
+          console.log(data, "received data from the chat channel")
         },
         disconnected() {}
       },
@@ -31,6 +32,7 @@
         },
         rejected() {},
         received(data) {
+          console.log("received data from the userlist channel")
           let userElement = Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(data.user.id))
           if (data.online) {
             let element = document.getElementById(`${data.user.id}-offline-dot`);
@@ -76,15 +78,17 @@
     },
     methods: {
       chatSelected(data) {
-        console.log(data)
         let selectedUser = this.users.find( user => user.id === data.targetUserId)
-        console.log(selectedUser)
         this.selectedChat = selectedUser
         this.$cable.subscribe({
           channel: 'ChatChannel',
           host_id: this.currentUserId,
           target_user_id: data.targetUserId
         })
+      },
+      messageSent(data) {
+        console.log("this method will take a message sent from ChatBox component and perform a messagesent action on the server")
+
       }
     }
   }
