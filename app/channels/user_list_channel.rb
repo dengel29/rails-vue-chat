@@ -18,21 +18,7 @@ class UserListChannel < ApplicationCable::Channel
     # if we can't find an existing chatroom with these 2 users...
     # ChatRoom.where chat_participants.includes(id: host_id && id: target_user_id )
     
-    host = current_user
-    invited_user = User.find(data['target_user_id'])
-    # create new chatroom with current user, target user
-    
-    existing_chat_room = User.find(host.id).chat_rooms.includes(:users).where(users: {id: invited_user.id})[0]
-
-    if existing_chat_room
-      existing_chat_room
-      puts "entered chat room id: #{existing_chat_room.id}"
-    else
-      new_chat_room = ChatRoom.create!
-      ChatParticipant.create!(user: host, chat_room: new_chat_room)
-      ChatParticipant.create!(user: invited_user, chat_room: new_chat_room)
-      puts "created and entered new chat room id: #{new_chat_room.id}"
-    end
+    chatroom = ChatRoom.find_or_create_by_host_and_invited(data['host_id'], data['target_user_id'])
     
 
   end

@@ -1,12 +1,10 @@
 <template>
   <div class="user-list__container">
-    <div>
-
-      <h1>we're in the chats</h1>
+    <div class="user-list__inner">
+      <h1>{{currentUser.username}} in the chats</h1>
       <ul>
-        <li v-for="user in users" :key="user.id" :data-user-id="user.id" @click="startChatWith($event)">
-          {{user.email}}
-
+        <li v-for="user in users" :key="user.id" :data-user-id="user.id" @click="handleClick($event)">
+          {{user.username}}
         </li>
       </ul>
     </div>
@@ -17,7 +15,8 @@
 export default {
   data: function () {
     return {
-      currentUserId: null
+      currentUserId: null,
+      currentUser: null
     }
   },
   channels: {
@@ -26,7 +25,9 @@ export default {
         console.log("connected to the chat channel")
       },
       rejected() {},
-      received(data) {},
+      received(data) {
+        
+      },
       disconnected() {}
     },
     UserListChannel: {
@@ -40,28 +41,29 @@ export default {
   },
   props: ["users"],
   methods: {
-    startChatWith: function (e) {
-      console.log(e.target.dataset.userId)
-      this.$cable.perform({
-        channel: 'UserListChannel',
-        action: 'send_invitation',
-        data: {
-          host_id: this.currentUserId,
-          target_user_id: e.target.dataset.userId
-        }
+    // startChatWith: function (e) {
+    //   this.$cable.perform({
+    //     channel: 'UserListChannel',
+    //     action: 'send_invitation',
+    //     data: {
+    //       host_id: this.currentUserId,
+    //       target_user_id: e.target.dataset.userId
+    //     }
+    //   })
+    // },
+    handleClick: function(e) {
+      console.log(e)
+      let targetUserId = Number(e.target.dataset.userId)
+      this.$emit("buttonClicked", {
+        targetUserId: targetUserId
       })
-    },
+    }
 
   },
   mounted() {
-    this.$cable.subscribe({
-      channel: 'ChatChannel',
-      room: 'public'
-    });
-    this.$cable.subscribe({
-      channel: 'UserListChannel'
-    });
-    this.currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
+    let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
+    this.currentUserId = currentUserId
+    this.currentUser = this.users.find(user => user.id === Number(currentUserId))
   }
 }
 </script>
@@ -70,5 +72,43 @@ export default {
   .user-list__container {
     border-right: 5px solid darkslateblue
   }
-  h1 {margin-top: 0}
+  .user-list__inner {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items:center;
+  }
+  h1 {
+    margin-top: 0;
+    font-size: 1.6em;
+  }
+
+  ul {
+    list-style: none;
+    text-align:center;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding-inline-start:0;
+    width:100%;
+
+  }
+  li {
+    cursor:pointer;
+    width:90%;
+    margin: 0.4em 0.4em;
+    border-radius:4px;
+    border: 2px solid darkslategray;
+    padding: 2px 2px;
+  }
+
+  li:hover {
+    color: rgb(218, 199, 199);
+    background-color: rgba(18, 31, 31, 0.454)
+  }
+
+  li:active {
+    color: white;
+    background-color: darkslategray;
+    border:2px solid white;
+  }
 </style>
