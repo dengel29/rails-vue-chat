@@ -1,12 +1,24 @@
 class ChatChannel < ApplicationCable::Channel
   # after_subscribe :send_chat_room_id
   def subscribed
-    
     stream_for chatroom
   end
 
-  def send_message
-    # create message with :content, :sender_id, chat_room_id
+  def create_message(data)
+    # create message with :content, :sender_id, chatroom_id
+    puts "we're in it for the data"
+    puts data
+    chatroom = ChatRoom.find(data["chatroom_id"])
+    message = Message.new(
+      content: data["message"], 
+      chat_room: chatroom, 
+      chat_participant: ChatParticipant.find(data["sender_id"])
+    )
+    if message.save!
+      puts "cool"
+    else
+      puts "oh no"
+    end
   end
 
   def get_chat_room

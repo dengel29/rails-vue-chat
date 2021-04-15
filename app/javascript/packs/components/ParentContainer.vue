@@ -12,12 +12,15 @@
         chats: [],
         selectedChat: {
           chatId: null,
+          chat_room: {
+            id: 0
+          },
           users: [
             {
               username: 'select a chat'
             }
           ],
-          id: null
+          id: 0
         },
         currentUser: {
           username: 'no one'}
@@ -113,7 +116,7 @@
     },
     methods: {
       chatSelected(data) {
-        let selectedUser = this.users.find( user => user.id === data.targetUserId)
+        // let selectedUser = this.users.find( user => user.id === data.targetUserId)
         this.$cable.subscribe({
           channel: 'ChatChannel',
           host_id: this.currentUserId,
@@ -122,9 +125,14 @@
         // set chat id to received chat id
       },
       messageSent(data) {
-        console.log("this method will take a message sent from ChatBox component and perform a messagesent action on the server")
-        // create a message on the server, using senderId and chatroomId
         console.log(data)
+        
+        // create a message on the server, using senderId and chatroomId
+        this.$cable.perform({
+          channel: 'ChatChannel',
+          action: 'create_message',
+          data: data
+        })
       }
     }
   }

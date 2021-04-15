@@ -18,7 +18,6 @@ class ChatRoom < ApplicationRecord
   end
 
   def send_chatroom(chatroom, chatroom_hash)
-
     NotificationsChannel.broadcast_to(chatroom.users.first, chatroom_hash)
     ChatChannel.broadcast_to(chatroom, { chat_room: chatroom, users: chatroom_hash["users"] })
   end

@@ -24,8 +24,8 @@ export default {
       console.log(this.$refs.chatinput.value)
       let messageData = {
         message: this.$refs.chatinput.value,
-        senderId: this.currentUser.id,
-        chatRoomId: Number(this.$refs.chatcontainer.dataset.chatId)
+        sender_id: Number(this.currentUser.id),
+        chatroom_id: Number(this.$refs.chatcontainer.dataset.chatId)
       }
       this.$emit("buttonClicked", messageData)
     },
