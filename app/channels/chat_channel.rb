@@ -11,8 +11,13 @@ class ChatChannel < ApplicationCable::Channel
 
   def get_chat_room
     cr = chatroom
+    message_type = { "type" => "chatroom_info" }
+    users = { "users" => cr.users.as_json }
+
+    inviter = { "host" => User.find(params["host_id"]).as_json }
+    chatroom_hash = {}.merge(users, message_type, inviter)
     puts "sending chatroom id [channel]"
-    cr.send_chatroom(cr)
+    cr.send_chatroom(cr, chatroom_hash)
     # ActionCable.server.broadcast("user_list", { user: user, online: true })
   end
 

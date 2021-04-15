@@ -23,16 +23,6 @@ export default {
   },
   props: ["users"],
   methods: {
-    // startChatWith: function (e) {
-    //   this.$cable.perform({
-    //     channel: 'UserListChannel',
-    //     action: 'send_invitation',
-    //     data: {
-    //       host_id: this.currentUserId,
-    //       target_user_id: e.target.dataset.userId
-    //     }
-    //   })
-    // },
     handleClick: function(e) {
       let targetUserId = Number(e.target.dataset.userId)
       this.$emit("buttonClicked", {

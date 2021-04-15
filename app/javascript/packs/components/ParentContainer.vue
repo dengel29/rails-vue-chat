@@ -13,8 +13,18 @@
           username: 'select a chat',
           id: null
         },
-        selectedChat: 'null'
+        chats: [],
+        selectedChat: {
+          chatId: null,
+          
+        }
       }
+    },
+    computed: {
+      // TODO
+      // selectedChat() {
+      //   chats.find(chat => chat.id === )
+      // }
     },
     channels: {
       ChatChannel: {
@@ -22,11 +32,7 @@
           console.log("connected to the chat channel")
           this.$cable.perform({
             channel: 'ChatChannel',
-            action: 'get_chat_room',
-            // data: {
-            //   host_id: this.currentUserId,
-            //   target_user_id: e.target.dataset.userId
-            // }
+            action: 'get_chat_room'
           })
         },
         rejected() {},
@@ -100,7 +106,6 @@
     methods: {
       chatSelected(data) {
         let selectedUser = this.users.find( user => user.id === data.targetUserId)
-        this.selectedChat = selectedUser
         this.$cable.subscribe({
           channel: 'ChatChannel',
           host_id: this.currentUserId,

@@ -7,7 +7,6 @@ class ChatRoom < ApplicationRecord
     # create new chatroom with current user, target user
     existing_chat_room = User.find(host_id).chat_rooms.includes(:users).where(users: {id: invited_id})[0]
     
-    puts existing_chat_room.users.count
     if existing_chat_room
       return existing_chat_room
     else
@@ -18,9 +17,9 @@ class ChatRoom < ApplicationRecord
     end
   end
 
-  def send_chatroom(chatroom)
-    users = chatroom.users
-    NotificationsChannel.broadcast_to(users.first, {message: "you've been invited to a chatroom"})
-    ChatChannel.broadcast_to(chatroom, { chat_room: chatroom, users: users })
+  def send_chatroom(chatroom, chatroom_hash)
+
+    NotificationsChannel.broadcast_to(chatroom.users.first, chatroom_hash)
+    ChatChannel.broadcast_to(chatroom, { chat_room: chatroom, users: chatroom_hash["users"] })
   end
 end
