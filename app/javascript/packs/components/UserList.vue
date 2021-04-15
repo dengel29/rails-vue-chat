@@ -16,27 +16,9 @@ export default {
   data: function () {
     return {
       currentUserId: null,
-      currentUser: null
-    }
-  },
-  channels: {
-    ChatChannel: {
-      connected() {
-        console.log("connected to the chat channel")
-      },
-      rejected() {},
-      received(data) {
-        
-      },
-      disconnected() {}
-    },
-    UserListChannel: {
-      connected() {
-        console.log("connected to meat channel")
-      },
-      rejected() {},
-      received(data) {},
-      disconnected() {}
+      currentUser: {
+        username: 'select a user'
+      }
     }
   },
   props: ["users"],
@@ -98,6 +80,7 @@ export default {
     border-radius:4px;
     border: 2px solid darkslategray;
     padding: 2px 2px;
+    position:relative
   }
 
   li:hover {

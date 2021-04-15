@@ -12,19 +12,37 @@
         selectedUser: {
           username: 'select a chat',
           id: null
-        }
+        },
+        selectedChat: 'null'
       }
     },
     channels: {
       ChatChannel: {
-        connected(data) {
+        connected() {
           console.log("connected to the chat channel")
+          this.$cable.perform({
+            channel: 'ChatChannel',
+            action: 'get_chat_room',
+            // data: {
+            //   host_id: this.currentUserId,
+            //   target_user_id: e.target.dataset.userId
+            // }
+          })
         },
         rejected() {},
         received(data) {
-          console.log(data, "received data from the chat channel")
+          console.log("received data from the chat channel")
+          console.log(data)
         },
         disconnected() {}
+      },
+      NotificationsChannel: {
+        connected() {},
+        rejected() {},
+        received(data) {
+          console.log(data, "from notifications channel")
+        },
+        disconnected(){}
       },
       UserListChannel: {
         connected() {
@@ -72,6 +90,9 @@
       this.$cable.subscribe({
         channel: 'UserListChannel'
       });
+      this.$cable.subscribe({
+        channel: 'NotificationsChannel'
+      })
       let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
       this.currentUserId = currentUserId
       this.currentUser = this.users.find(user => user.id === Number(currentUserId))

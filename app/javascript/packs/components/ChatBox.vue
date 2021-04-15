@@ -1,7 +1,7 @@
 <template>
   <div class="chat-box__container">
     <div class="messages__container">
-      <h1>{{selectedChat.username}}</h1>
+      <h1>{{selectedChat}}</h1>
     </div>
     <div class="input__container">
       <form action="" class="input__inner" v-on:submit.prevent="onSubmit">

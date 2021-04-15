@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :chat_participants
   has_many :messages, through: :chat_participants
   has_many :chat_rooms, through: :chat_participants
+
   def appear(user)
     ActionCable.server.broadcast("user_list", { user: user, online: true })
   end
