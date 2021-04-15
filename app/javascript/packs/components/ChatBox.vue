@@ -1,7 +1,7 @@
 <template>
-  <div class="chat-box__container">
+  <div class="chat-box__container" ref="chatcontainer" :data-chat-id="selectedChat.chat_room.id">
     <div class="messages__container">
-      <h1>{{selectedChat}}</h1>
+      <h1>Me ({{currentUser.username}}) & {{selectedChat.users[0].username}}</h1>
     </div>
     <div class="input__container">
       <form action="" class="input__inner" v-on:submit.prevent="onSubmit">
@@ -18,19 +18,16 @@ export default {
     return {
     }
   },
-  props: ["selectedChat"],
+  props: ["selectedChat", "currentUser"],
   methods: {
     onSubmit: function (e) {
       console.log(this.$refs.chatinput.value)
       let messageData = {
         message: this.$refs.chatinput.value,
-        senderId: null,
-        chatRoomId: null
+        senderId: this.currentUser.id,
+        chatRoomId: Number(this.$refs.chatcontainer.dataset.chatId)
       }
-      // let targetUserId = Number(e.target.dataset.userId)
-      // this.$emit("buttonClicked", {
-      //   targetUserId: targetUserId
-      // })
+      this.$emit("buttonClicked", messageData)
     },
   },
   mounted() {

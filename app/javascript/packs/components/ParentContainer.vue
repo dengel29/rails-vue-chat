@@ -1,7 +1,7 @@
 <template>
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
     <user-list :users="users" @buttonClicked="chatSelected"></user-list>
-    <chat-box :selectedUser="selectedUser" :selectedChat="selectedChat" @buttonClicked="messageSent"></chat-box>
+    <chat-box :selectedChat="selectedChat" @buttonClicked="messageSent" :currentUser="currentUser"></chat-box>
   </div>
 </template>
 
@@ -9,15 +9,18 @@
   export default {
     data: function(){
       return {
-        selectedUser: {
-          username: 'select a chat',
-          id: null
-        },
         chats: [],
         selectedChat: {
           chatId: null,
-          
-        }
+          users: [
+            {
+              username: 'select a chat'
+            }
+          ],
+          id: null
+        },
+        currentUser: {
+          username: 'no one'}
       }
     },
     computed: {
@@ -37,8 +40,9 @@
         },
         rejected() {},
         received(data) {
-          console.log("received data from the chat channel")
           console.log(data)
+          this.chats.push(data)
+          this.selectedChat = data
         },
         disconnected() {}
       },
@@ -47,6 +51,10 @@
         rejected() {},
         received(data) {
           console.log(data, "from notifications channel")
+          if (data.type === 'chatroom_info') {
+            // put leaf next to name of user who has initiated chat
+            let host = this.users.find(user => user.id === data.host.id)
+          }
         },
         disconnected(){}
       },
@@ -111,10 +119,12 @@
           host_id: this.currentUserId,
           target_user_id: data.targetUserId
         })
+        // set chat id to received chat id
       },
       messageSent(data) {
         console.log("this method will take a message sent from ChatBox component and perform a messagesent action on the server")
-
+        // create a message on the server, using senderId and chatroomId
+        console.log(data)
       }
     }
   }
