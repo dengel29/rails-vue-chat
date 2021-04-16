@@ -43,19 +43,28 @@
         },
         rejected() {},
         received(data) {
-          console.log(data)
-          this.chats.push(data)
-          this.selectedChat = data
+          if (data.type === 'message_receipt') {
+            console.log(data)
+            appendMessage(data)
+          } else if (data.type === 'chatroom_receipt') {
+            // console.log(data, "got the chatroom")
+            this.chats.push(data)
+            this.selectedChat = data
+          }
+          
         },
         disconnected() {}
       },
       NotificationsChannel: {
-        connected() {},
+        connected() {
+          console.log("connected to notificationschannel")
+        },
         rejected() {},
         received(data) {
-          console.log(data, "from notifications channel")
           if (data.type === 'chatroom_info') {
+            // TODO
             // put leaf next to name of user who has initiated chat
+            console.log(data, "got the chatroom")
             let host = this.users.find(user => user.id === data.host.id)
           }
         },
@@ -63,7 +72,7 @@
       },
       UserListChannel: {
         connected() {
-          console.log("connected to meat channel")
+          console.log("connected to userlist channel")
         },
         rejected() {},
         received(data) {
@@ -122,17 +131,18 @@
           host_id: this.currentUserId,
           target_user_id: data.targetUserId
         })
-        // set chat id to received chat id
       },
-      messageSent(data) {
-        console.log(data)
-        
+      messageSent(data) {    
         // create a message on the server, using senderId and chatroomId
         this.$cable.perform({
           channel: 'ChatChannel',
           action: 'create_message',
           data: data
         })
+      },
+      appendMessage(data) {
+        console.log("gonna append that message")
+
       }
     }
   }

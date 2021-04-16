@@ -17,8 +17,23 @@ class ChatRoom < ApplicationRecord
     end
   end
 
-  def send_chatroom(chatroom, chatroom_hash)
+  def send_chatroom(chatroom, chatroom_hash, current_user)
+    puts current_user
+    NotificationsChannel.broadcast_to(current_user, chatroom_hash)
     NotificationsChannel.broadcast_to(chatroom.users.first, chatroom_hash)
-    ChatChannel.broadcast_to(chatroom, { chat_room: chatroom, users: chatroom_hash["users"] })
+    
+    ChatChannel.broadcast_to(chatroom, { 
+      "chat_room" => chatroom, 
+      "users" => chatroom_hash["users"], 
+      "message_type" => "chatroom_receipt"
+    })
+  end
+
+  def send_message(chatroom, message)
+    message_type = {
+      "type" => "message_receipt"
+    }
+    m = message.as_json.merge(message_type)
+    ChatChannel.broadcast_to(chatroom, m)
   end
 end
