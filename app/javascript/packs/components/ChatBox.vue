@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-box__container" ref="chatcontainer" :data-chat-id="selectedChat.chat_room.id">
+  <div class="chat-box__container" ref="chatcontainer" :data-chat-id="selectedChat.chatroom.id">
     <div class="messages__container">
       <h1>Me ({{currentUser.username}}) & {{selectedChat.users[0].username}}</h1>
     </div>

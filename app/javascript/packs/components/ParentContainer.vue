@@ -11,19 +11,8 @@
       return {
         chats: [],
         selectedChat: {
-          chatId: null,
-          chat_room: {
-            id: 0
-          },
-          users: [
-            {
-              username: 'select a chat'
-            }
-          ],
-          id: 0
-        },
-        currentUser: {
-          username: 'no one'}
+
+        }
       }
     },
     computed: {
@@ -61,11 +50,22 @@
         },
         rejected() {},
         received(data) {
+          // notifications can be sent to those initiating chat and those on receiving end of chat
+          // notifications have a type, and this will control flow to different actions
+
+          // chatroom_info is sent down when a chat is selected, contains chatroom info
           if (data.type === 'chatroom_info') {
+            
             // TODO
             // put leaf next to name of user who has initiated chat
-            console.log(data, "got the chatroom")
-            let host = this.users.find(user => user.id === data.host.id)
+            
+            // if the recipient of this notification is the chat initiator (or host), set their selectedChat 
+            // to the one in the data
+              
+            if (this.currentUserId === data.host.id) {
+              this.selectedChat = data
+            }
+            // let host = this.users.find(user => user.id === data.host.id)
           }
         },
         disconnected(){}
@@ -120,12 +120,12 @@
         channel: 'NotificationsChannel'
       })
       let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
-      this.currentUserId = currentUserId
+      this.currentUserId = Number(currentUserId)
       this.currentUser = this.users.find(user => user.id === Number(currentUserId))
     },
     methods: {
       chatSelected(data) {
-        // let selectedUser = this.users.find( user => user.id === data.targetUserId)
+        // begins a subscription to a chatroom when one is clicked
         this.$cable.subscribe({
           channel: 'ChatChannel',
           host_id: this.currentUserId,
@@ -133,7 +133,7 @@
         })
       },
       messageSent(data) {    
-        // create a message on the server, using senderId and chatroomId
+        // creates a message on the server, using senderId and chatroomId
         this.$cable.perform({
           channel: 'ChatChannel',
           action: 'create_message',
