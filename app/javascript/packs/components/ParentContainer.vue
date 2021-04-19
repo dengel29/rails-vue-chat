@@ -146,11 +146,18 @@
     methods: {
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
-        this.$cable.subscribe({
-          channel: 'ChatChannel',
-          host_id: this.currentUserId,
-          target_user_id: data.targetUserId
-        })
+        console.log('chat selected, no probelm here')
+
+        if (this.chats.length > 0 && this.chats.some(chat => chat.users[0].id === data.targetUserId)) {
+          this.selectedChat = this.chats.find(chat => chat.users[0].id === data.targetUserId)
+        } else {
+
+          this.$cable.subscribe({
+            channel: 'ChatChannel',
+            host_id: this.currentUserId,
+            target_user_id: data.targetUserId
+          })
+        }
       },
       messageSent(data) {    
         // creates a message on the server, using senderId and chatroomId

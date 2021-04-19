@@ -1,7 +1,7 @@
 class ChatRoom < ApplicationRecord
   has_many :chat_participants
+  has_many :messages
   has_many :users, through: :chat_participants
-  has_many :messages, through: :chat_participants
 
   def self.find_or_create_by_host_and_invited(host_id, invited_id)
     # create new chatroom with current user, target user

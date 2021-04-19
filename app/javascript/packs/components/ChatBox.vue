@@ -4,7 +4,6 @@
       ref="chatcontainer"
       class="chat-box__container">
       <div class="messages__container">
-        <h1>Me ({{currentUser.username}}) & {{selectedChat.users[0].username}}</h1>
         <div class="messages__inner-wrapper" id="append" :data-me="currentUser.username" :data-them="selectedChat.users[0].username">
           <div class="messages__inner">  
             <div 
@@ -45,9 +44,30 @@ export default {
       }
       this.$emit("buttonClicked", messageData)
     },
+    scrollToElement() {
+      const el = this.$refs.scrollToMe;
+
+      if (el) {
+        // Use el.scrollIntoView() to instantly scroll to the element
+        el.scrollIntoView({behavior: 'smooth'});
+      }
+    }
   },
   mounted() {
+    this.$nextTick(function () {
+      if (document.querySelector('.messages__inner').hasChildNodes()) {
+        document.querySelector('.messages__inner').lastElementChild.scrollIntoView()
+      }
+    })
+  },
+  updated() {
+    this.$nextTick(function () {
+      if (document.querySelector('.messages__inner').hasChildNodes()) {
+        document.querySelector('.messages__inner').lastElementChild.scrollIntoView()
+      }
+    })
   }
+
 }
 </script>
 
@@ -60,10 +80,11 @@ export default {
   .chat-box__container {
     display:flex;
     flex-direction: column;
+    max-height:100vh
   }
 
   .messages__container {
-    height: 80%;
+    height: 70%;
     display: flex;
     flex-direction: column;
   }
@@ -87,10 +108,12 @@ export default {
   }
 
   .messages__inner-wrapper {
-    width:50%;
+    width: 50%;
     margin-top: auto;
-    display:flex;
+    display: flex;
     justify-content: space-between;
+    max-height: 70%;
+    height: 50%;
   }
   .messages__inner-wrapper::before {
     align-self:flex-end;
