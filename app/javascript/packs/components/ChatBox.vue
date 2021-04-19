@@ -5,21 +5,17 @@
       class="chat-box__container">
       <div class="messages__container">
         <div class="messages__inner-wrapper" id="append" :data-me="currentUser.username" :data-them="selectedChat.users[0].username">
-          <div class="messages__inner">  
-            <div 
+          <div class="messages__inner"><div
               v-for="message in selectedChat.messages" 
               :key="message.id" :data-message-id="message.id" 
               :data-user-id="message.chat_participant_id"
               v-bind:class="[message.chat_participant_id === Number(currentUser.id) ? myMessage : '']"
-              class="message">
-              {{message.content}}
-            </div>
-          </div>
+              class="message">{{message.content}}</div></div>
         </div>
       </div>
       <div class="input__container">
         <form action="" class="input__inner" v-on:submit.prevent="onSubmit">
-          <textarea type="text" name="message-input" id="message-input" ref="chatinput"></textarea>
+          <textarea type="text" name="message-input" id="message-input" ref="chatinput" @keyup.enter="onSubmit"></textarea>
           <input type="submit" value="submit">
         </form>
       </div>
@@ -42,6 +38,8 @@ export default {
         sender_id: Number(this.currentUser.id),
         chatroom_id: Number(this.$refs.chatcontainer.dataset.chatId)
       }
+      this.$refs.chatinput.value = ''
+      this.$refs.chatinput.focus
       this.$emit("buttonClicked", messageData)
     },
     scrollToElement() {
@@ -90,50 +88,76 @@ export default {
   }
 
   .messages__inner {
-    width:50%;
-    max-height: 70%;
+    width:30em;
+    max-height: 80%;
     border: 1px solid black;
-    padding: 20px;
+    padding: 14px;
     overflow-y: scroll;
-
     .message {
       text-align:left;
-      margin-bottom: .2em;
-      margin-top: .2em;
+      padding-bottom: .2em;
+      margin-bottom:.1em;
+      padding-top: .2em;
+      padding-left: .2em;
+      border-left: 2px solid darkorange;
+    }
+
+    .message text {
+      max-width: 50%;
     }
 
     .mine {
       text-align:right;
+      padding-right: .2em;
+      padding-left: initial;
+      border-left: initial;
+      border-right: 2px solid darkslateblue;
     }
   }
 
   .messages__inner-wrapper {
-    width: 50%;
+    width: 60em;
     margin-top: auto;
     display: flex;
-    justify-content: space-between;
-    max-height: 70%;
-    height: 50%;
+    height: 75%;
   }
   .messages__inner-wrapper::before {
-    align-self:flex-end;
+    align-self:center;
     content: attr(data-them);
+    width:3em;
+    border: 2px solid darkorange;
+    padding: 7px;
+    border-radius: 4px;
+    margin-right:.2em
   }
 
   .messages__inner-wrapper::after {
-    align-self:flex-end;
-    content: attr(data-me)
+    align-self:center;
+    content: attr(data-me);
+    width:3em;
+    border: 2px solid darkslateblue;
+    padding: 7px;
+    border-radius: 4px;
+    margin-left: .2em
+  }
+
+  .messages__inner:empty:after {
+    display:flex;
+    place-content: center;
+    margin-top:30%;
+    font-style:italic;
+    content: "no chat history \A \A \A let's get chatting";
+    white-space: pre-wrap;
   }
 
   .input__container {
-    height: 20%;
-    width:63%;
-    display:flex;
-    align-content: center;
+    height:20%;
+    width:75vw;
   }
 
   .input__inner {
     display:flex;
+    flex-direction:column;
     width:100%;
     align-items:center;
     justify-content: space-between;
