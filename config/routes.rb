@@ -4,4 +4,6 @@ Rails.application.routes.draw do
   root "welcome#index"
 
   get "/chats" => "chats#index", as: :chats_path
+
+  resources :chats, only: [:show, :index]
 end

@@ -25,6 +25,8 @@
       ChatChannel: {
         connected() {
           console.log("connected to the chat channel")
+          // every time we're connected to a new chat channel (when clicking a chat), the user who
+          // clicked is sent the chat room info with type "chatroom_recipt"
           this.$cable.perform({
             channel: 'ChatChannel',
             action: 'get_chat_room'
@@ -32,12 +34,15 @@
         },
         rejected() {},
         received(data) {
+          // data received could be either a message or a chatroom
           if (data.type === 'message_receipt') {
+            
             console.log(data)
-            appendMessage(data)
+            this.selectedChat.messages.push(data)
           } else if (data.type === 'chatroom_receipt') {
-            // console.log(data, "got the chatroom")
-            this.chats.push(data)
+            console.log(data, "got the chatroom")
+            this.chats = this.chats.push(data)
+
             this.selectedChat = data
           }
           
@@ -63,9 +68,11 @@
             // to the one in the data
               
             if (this.currentUserId === data.host.id) {
+              this.chats.push(data)
               this.selectedChat = data
+            } else {
+              this.chats.push(data)
             }
-            // let host = this.users.find(user => user.id === data.host.id)
           }
         },
         disconnected(){}
@@ -140,10 +147,9 @@
           data: data
         })
       },
-      appendMessage(data) {
-        console.log("gonna append that message")
-
-      }
+      // appendMessage(data) {
+      //   console.log("gonna append that message")
+      // }
     }
   }
 </script>

@@ -2,6 +2,11 @@
   <div class="chat-box__container" ref="chatcontainer" :data-chat-id="selectedChat.chatroom.id">
     <div class="messages__container">
       <h1>Me ({{currentUser.username}}) & {{selectedChat.users[0].username}}</h1>
+      <div class="messages_inner" id="append">
+        <li v-for="message in selectedChat.messages" :key="message.id" :data-message-id="message.id">
+          {{message.content}}
+        </li>
+      </div>
     </div>
     <div class="input__container">
       <form action="" class="input__inner" v-on:submit.prevent="onSubmit">

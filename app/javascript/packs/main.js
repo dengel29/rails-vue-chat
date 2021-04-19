@@ -57,6 +57,8 @@ import Vue from "vue/dist/vue.esm";
 import UserList from "./components/UserList";
 import ChatBox from "./components/ChatBox";
 import ParentContainer from "./components/ParentContainer.vue";
+import axios from "axios";
+import VueAxios from "vue-axios";
 import App from "../app.vue";
 
 const actionCableVueOptions = {
@@ -68,6 +70,8 @@ const actionCableVueOptions = {
 
 Vue.use(TurbolinksAdapter);
 Vue.use(ActionCableVue, actionCableVueOptions);
+Vue.use(VueAxios, axios);
+
 Vue.component("parent-container", ParentContainer);
 Vue.component("user-list", UserList);
 Vue.component("chat-box", ChatBox);

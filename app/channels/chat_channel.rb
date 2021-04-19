@@ -28,8 +28,8 @@ class ChatChannel < ApplicationCable::Channel
     users = { "users" => cr.users.as_json }
     inviter = { "host" => User.find(params["host_id"]).as_json }
     ch = {"chatroom" => cr.as_json}
-    chatroom_hash = {}.merge(users, message_type, inviter, ch)
-
+    messages = {"messages" => chatroom.messages.as_json}
+    chatroom_hash = {}.merge(users, message_type, inviter, ch, messages)
     cr.send_chatroom(cr, chatroom_hash, current_user)
   end
 
