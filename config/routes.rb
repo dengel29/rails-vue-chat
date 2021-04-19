@@ -6,4 +6,6 @@ Rails.application.routes.draw do
   get "/chats" => "chats#index", as: :chats_path
 
   resources :chats, only: [:show, :index]
+
+  mount ActionCable.server => ‘/cable’
 end
