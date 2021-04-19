@@ -1,7 +1,16 @@
 <template>
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
     <user-list :users="users" @buttonClicked="chatSelected"></user-list>
-    <chat-box :selectedChat="selectedChat" @buttonClicked="messageSent" :currentUser="currentUser"></chat-box>
+      
+      <chat-box 
+        v-if="chats.length > 0"
+        :selectedChat="selectedChat" 
+        @buttonClicked="messageSent" 
+        :currentUser="currentUser"
+        >
+      </chat-box>
+    
+    
   </div>
 </template>
 
@@ -11,8 +20,12 @@
       return {
         chats: [],
         selectedChat: {
-
-        }
+          id: 0,
+          chatroom: {
+            id: 0
+          }
+        },
+        currentUser: null
       }
     },
     computed: {
@@ -36,9 +49,9 @@
         received(data) {
           // data received could be either a message or a chatroom
           if (data.type === 'message_receipt') {
-            
-            console.log(data)
+            // data.chat_participant_id === this.currentUserId
             this.selectedChat.messages.push(data)
+            
           } else if (data.type === 'chatroom_receipt') {
             console.log(data, "got the chatroom")
             this.chats = this.chats.push(data)
