@@ -35,6 +35,8 @@ export default {
     let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
     this.currentUserId = currentUserId
     this.currentUser = this.users.find(user => user.id === Number(currentUserId))
+    this.users = this.users.filter(user => user.id != Number(currentUserId))
+
   }
 }
 </script>
