@@ -1,0 +1,19 @@
+current directory: /Users/dengel/code/rails-vue-devise/vendor/bundle/ruby/2.7.0/gems/byebug-11.1.3/ext/byebug
+/Users/dengel/.rbenv/versions/2.7.0/bin/ruby -I /Users/dengel/.rbenv/versions/2.7.0/lib/ruby/2.7.0 -r ./siteconf20210420-29739-8wsnwd.rb extconf.rb
+creating Makefile
+
+current directory: /Users/dengel/code/rails-vue-devise/vendor/bundle/ruby/2.7.0/gems/byebug-11.1.3/ext/byebug
+make "DESTDIR=" clean
+
+current directory: /Users/dengel/code/rails-vue-devise/vendor/bundle/ruby/2.7.0/gems/byebug-11.1.3/ext/byebug
+make "DESTDIR="
+compiling breakpoint.c
+compiling byebug.c
+compiling context.c
+compiling locker.c
+compiling threads.c
+linking shared-object byebug/byebug.bundle
+
+current directory: /Users/dengel/code/rails-vue-devise/vendor/bundle/ruby/2.7.0/gems/byebug-11.1.3/ext/byebug
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 byebug.bundle ./.gem.20210420-29739-1se1qwd/byebug

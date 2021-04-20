@@ -64,7 +64,7 @@ import App from "../app.vue";
 const actionCableVueOptions = {
   debug: true,
   debugLevel: "error",
-  connectionUrl: "ws://localhost:3000/cable",
+  connectionUrl: "wss://rails-vue-actioncable.herokuapp.com/cable",
   connectImmediately: true,
 };
 
