@@ -16,12 +16,9 @@ export default {
   data: function () {
     return {
       currentUserId: null,
-      currentUser: {
-        username: 'select a user'
-      }
     }
   },
-  props: ["users"],
+  props: ["users", "currentUser"],
   methods: {
     handleClick: function(e) {
       let targetUserId = Number(e.target.dataset.userId)
@@ -32,11 +29,9 @@ export default {
 
   },
   mounted() {
-    let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
-    this.currentUserId = currentUserId
-    this.currentUser = this.users.find(user => user.id === Number(currentUserId))
-    this.users = this.users.filter(user => user.id != Number(currentUserId))
-
+    // let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
+    this.currentUserId = this.currentUser.id
+    // this.currentUser = this.users.find(user => user.id === Number(currentUserId))
   }
 }
 </script>
@@ -46,14 +41,19 @@ export default {
     border-right: 5px solid darkslateblue
   }
   .user-list__inner {
-    display:flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items:center;
+   overflow-y: scroll;
+    height: 100vh;
   }
   h1 {
-    margin-top: 0;
+      margin-top: 0;
     font-size: 1.6em;
+    position: sticky;
+    top: 0;
+    background: darkslateblue;
+    z-index: 2;
+    color: white;
+    text-align: right;
+    padding-right: 10px;
   }
 
   ul {

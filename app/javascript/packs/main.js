@@ -61,10 +61,15 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 import App from "../app.vue";
 
+let connectionUrl =
+  document.location.hostname == "localhost"
+    ? "ws://localhost:3000/cable"
+    : "wss://rails-vue-actioncable.herokuapp.com/cable";
+
 const actionCableVueOptions = {
   debug: true,
   debugLevel: "error",
-  connectionUrl: "wss://rails-vue-actioncable.herokuapp.com/cable",
+  connectionUrl: connectionUrl,
   connectImmediately: true,
 };
 

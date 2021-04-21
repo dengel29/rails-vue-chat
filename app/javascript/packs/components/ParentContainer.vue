@@ -1,16 +1,13 @@
 <template>
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
-    <user-list :users="users" @buttonClicked="chatSelected"></user-list>
-      
+    <user-list :users="users" @buttonClicked="chatSelected" :current-user="currentUser"></user-list>   
       <chat-box 
-        v-if="chats.length > 0"
+        v-if="chats.length > 0 && selectedChat.id != 0"
         :selectedChat="selectedChat" 
         @buttonClicked="messageSent" 
-        :currentUser="currentUser"
+        :current-user="currentUser"
         >
-      </chat-box>
-    
-    
+      </chat-box> 
   </div>
 </template>
 
@@ -24,8 +21,7 @@
           chatroom: {
             id: 0
           }
-        },
-        currentUser: null
+        }
       }
     },
     computed: {
@@ -50,15 +46,22 @@
           // data received could be either a message or a chatroom
           if (data.type === 'message_receipt') {
             // data.chat_participant_id === this.currentUserId
-            this.selectedChat.messages.push(data)
-            
-          } else if (data.type === 'chatroom_receipt') {
-            console.log(data, "got the chatroom")
-            this.chats = this.chats.push(data)
+            console.log(data)
+            if (data.chat_room_id != this.selectedChat.chatroom.id) {
+              // add a border around the chat where data.chat_participant_id === this.users(user => user.id === data.chat_participant_id)
+              this.addBorder(data.chat_participant_id)
+              this.chats.find(chat => chat.chatroom.id === data.chat_room_id).messages.push(data)
+            } else {
+              this.selectedChat.messages.push(data)
+            }
+          } 
+          // we might be doing the same thing with the notifications channel
+          // else if (data.type === 'chatroom_receipt') {
+          //   console.log(data, "got the chatroom")
+          //   this.chats = this.chats.push(data)
 
-            this.selectedChat = data
-          }
-          
+          //   this.selectedChat = data
+          // }
         },
         disconnected() {}
       },
@@ -84,6 +87,8 @@
               this.chats.push(data)
               this.selectedChat = data
             } else {
+              console.log(data, "from the host to the invited")
+              this.addBorder(data.host.id)
               this.chats.push(data)
             }
           }
@@ -96,9 +101,8 @@
         },
         rejected() {},
         received(data) {
-          console.log("received data from the userlist channel")
           let userElement = Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(data.user.id))
-          if (data.online) {
+          if (userElement && data.online) {
             let element = document.getElementById(`${data.user.id}-offline-dot`);
             if (element) {
               element.remove()
@@ -112,7 +116,7 @@
             div.style.background = "green"
             div.style.position = "absolute"
             userElement.insertAdjacentElement('afterbegin', div)
-          } else if (!data.online) {
+          } else if (userElement && !data.online) {
             let element = document.getElementById(`${data.user.id}-online-dot`);
             if (element) {
               element.remove()
@@ -131,7 +135,7 @@
         disconnected() {}
       }
     },
-    props: ["users"],
+    props: ["users", "currentUser"],
     mounted: function() {
       this.$cable.subscribe({
         channel: 'UserListChannel'
@@ -139,15 +143,15 @@
       this.$cable.subscribe({
         channel: 'NotificationsChannel'
       })
-      let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
-      this.currentUserId = Number(currentUserId)
-      this.currentUser = this.users.find(user => user.id === Number(currentUserId))
+      this.currentUserId = this.currentUser.id
     },
     methods: {
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
-        console.log('chat selected, no probelm here')
-
+        if (this.selectedChat.users) {
+          this.toggleBackground(this.selectedChat.users[0].id, "off")
+        }
+        this.toggleBackground(data.targetUserId, "on")
         if (this.chats.length > 0 && this.chats.some(chat => chat.users[0].id === data.targetUserId)) {
           this.selectedChat = this.chats.find(chat => chat.users[0].id === data.targetUserId)
         } else {
@@ -167,10 +171,24 @@
           data: data
         })
       },
-      // appendMessage(data) {
-      //   console.log("gonna append that message")
-      // }
-    }
+      addBorder(id) {
+        let userElement = this.findUserElement(id)
+        userElement.style.border = '2px solid orange'
+      },
+      toggleBackground(id, toggle) {
+        let userElement = this.findUserElement(id)
+        if (toggle === "on") {
+          userElement.style.background = "darkslateblue";
+          userElement.style.color = "white"
+        } else {
+          userElement.style.background = "white";
+          userElement.style.color = "black"
+        }
+      },
+      findUserElement(id) {
+        return Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(id))
+      }
+     },
   }
 </script>
 

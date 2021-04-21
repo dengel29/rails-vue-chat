@@ -88,7 +88,8 @@ export default {
   }
 
   .messages__inner {
-    width:30em;
+    max-width:30em;
+    width:50%;
     max-height: 80%;
     border: 1px solid black;
     padding: 14px;
@@ -115,8 +116,12 @@ export default {
     }
   }
 
+  #message-input {
+    border: 3px solid grey
+  }
+
   .messages__inner-wrapper {
-    width: 60em;
+    width: 100vw;
     margin-top: auto;
     display: flex;
     height: 75%;
@@ -167,7 +172,11 @@ export default {
       padding-bottom: 1em;
       width:85%;
       height:50%;
-      border: 0px 1px 0px 0px solid red
+      border: 2px solid grey !important
+    }
+
+    textarea:focus {
+      border: 2px solid darkslateblue !important
     }
     input[type="submit"] {
       background-color: darkslateblue;
