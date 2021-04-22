@@ -6,5 +6,5 @@ test:
 
 production:
   adapter: redis
-  url: redis://redistogo:d85e262bb9d8151be3eda6baec3a0c1a@spinyfin.redistogo.com:11101/
+  url: <%= ENV['REDISTOGO_URL'] %>
   # channel_prefix: rails_vue_devise_production

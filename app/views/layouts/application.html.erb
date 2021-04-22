@@ -12,7 +12,7 @@
     <%= javascript_pack_tag 'main' %>
 
     <% if user_signed_in? %>
-     <%= tag :meta, name: "current-user", data: {id: current_user.id} %>
+      <%= tag :meta, name: "current-user", data: {id: current_user.id} %>
     <% end  %> 
   </head>
 
