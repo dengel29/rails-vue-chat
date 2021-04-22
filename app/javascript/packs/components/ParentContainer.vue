@@ -140,6 +140,9 @@
     methods: {
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
+        console.log('printPRINT')
+        let userElement = this.findUserElement(data.targetUserId)
+        userElement.classList.add('disabled')
         if (this.selectedChat.users) {
           this.toggleBackground(this.selectedChat.users.find(user => user.id != this.currentUser.id).id, "off")
         }
@@ -148,6 +151,7 @@
         this.lastSelectedChatId = data.targetUserId
 
         this.subscribeAndPullDownChat(data.targetUserId)
+        userElement.classList.add('touched')
       },
       messageSent(data) {    
         // creates a message on the server, using senderId and chatroomId
@@ -191,6 +195,7 @@
             action: 'get_chatroom'
           })
         }
+        this.findUserElement(id).classList.remove('disabled')
       }
      },
   }

@@ -21,10 +21,15 @@ export default {
   props: ["users", "currentUser"],
   methods: {
     handleClick: function(e) {
-      let targetUserId = Number(e.target.dataset.userId)
-      this.$emit("buttonClicked", {
-        targetUserId: targetUserId
-      })
+      if (!Array.from(e.target.classList).includes('disabled')) {
+        let targetUserId = Number(e.target.dataset.userId)
+        this.$emit("buttonClicked", {
+          targetUserId: targetUserId
+        })
+      } else {
+        console.log('cant print doing work')
+      }
+
     }
 
   },
@@ -82,5 +87,9 @@ export default {
     color: white;
     background-color: darkslategray;
     border:2px solid white;
+  }
+
+  .disabled {
+    cursor:not-allowed
   }
 </style>
