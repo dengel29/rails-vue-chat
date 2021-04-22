@@ -29,9 +29,7 @@ export default {
 
   },
   mounted() {
-    // let currentUserId = Array.from(document.querySelectorAll('meta')).find(el => el.name === 'current-user').dataset.id
     this.currentUserId = this.currentUser.id
-    // this.currentUser = this.users.find(user => user.id === Number(currentUserId))
   }
 }
 </script>

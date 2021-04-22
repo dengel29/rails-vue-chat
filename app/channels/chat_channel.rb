@@ -6,8 +6,6 @@ class ChatChannel < ApplicationCable::Channel
 
   def create_message(data)
     # create message with :content, :sender_id, chatroom_id
-    puts "we're in it for the data"
-    puts data
     chatroom = ChatRoom.find(data["chatroom_id"])
     message = Message.new(
       content: data["message"], 
@@ -15,22 +13,22 @@ class ChatChannel < ApplicationCable::Channel
       chat_participant: ChatParticipant.find(data["sender_id"])
     )
     if message.save!
-      puts "cool"
       chatroom.send_message(chatroom, message)
-    else
-      puts "oh no"
     end
   end
 
   def get_chat_room
     cr = chatroom
-    message_type = { "type" => "chatroom_info" }
-    users = { "users" => cr.users.as_json }
-    inviter = { "host" => User.find(params["host_id"]).as_json }
-    ch = {"chatroom" => cr.as_json}
+    combined_users = cr.users.as_json 
+    combined_users = combined_users << User.find(params["host_id"]).as_json
+    type = { "type" => "chatroom_info" }
+    users = { "users" => combined_users }
+    ch = cr.as_json
     messages = {"messages" => chatroom.messages.as_json}
-    chatroom_hash = {}.merge(users, message_type, inviter, ch, messages)
-    cr.send_chatroom(cr, chatroom_hash, current_user)
+    chatroom_info = {}.merge(users, type, ch)
+    chatroom_hash = chatroom_info.merge(messages)
+    
+    cr.send_chatroom(cr, chatroom_hash, chatroom_info)
   end
 
   def unsubscribed

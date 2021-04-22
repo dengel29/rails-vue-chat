@@ -6,11 +6,12 @@
       <div class="messages__container">
         <div class="messages__inner-wrapper" id="append" :data-me="currentUser.username" :data-them="selectedChat.users[0].username">
           <div class="messages__inner"><div
-              v-for="message in selectedChat.messages" 
+              v-for="message in selectedChat.chatroom.messages" 
               :key="message.id" :data-message-id="message.id" 
               :data-user-id="message.chat_participant_id"
               v-bind:class="[message.chat_participant_id === Number(currentUser.id) ? myMessage : '']"
-              class="message">{{message.content}}</div></div>
+              class="message">
+              <div class="message-content__wrapper">{{message.content}}</div></div></div>
         </div>
       </div>
       <div class="input__container">
@@ -32,7 +33,6 @@ export default {
   props: ["selectedChat", "currentUser"],
   methods: {
     onSubmit: function (e) {
-      console.log(this.$refs.chatinput.value)
       let messageData = {
         message: this.$refs.chatinput.value,
         sender_id: Number(this.currentUser.id),
@@ -99,7 +99,7 @@ export default {
       padding-bottom: .2em;
       margin-bottom:.1em;
       padding-top: .2em;
-      padding-left: .2em;
+      padding-left: .4em;
       border-left: 2px solid darkorange;
     }
 
@@ -109,10 +109,15 @@ export default {
 
     .mine {
       text-align:right;
-      padding-right: .2em;
+      padding-right: .4em;
       padding-left: initial;
       border-left: initial;
+      margin-left:10%;
       border-right: 2px solid darkslateblue;
+
+      .message-content__wrapper {
+        margin-left: 10%;
+      }
     }
   }
 
@@ -154,6 +159,7 @@ export default {
     content: "no chat history \A \A \A let's get chatting";
     white-space: pre-wrap;
   }
+
 
   .input__container {
     height:20%;

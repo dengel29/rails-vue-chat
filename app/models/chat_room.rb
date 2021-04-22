@@ -5,6 +5,7 @@ class ChatRoom < ApplicationRecord
 
   def self.find_or_create_by_host_and_invited(host_id, invited_id)
     # create new chatroom with current user, target user
+    puts
     existing_chat_room = User.find(host_id).chat_rooms.includes(:users).where(users: {id: invited_id})[0]
     
     if existing_chat_room
@@ -17,14 +18,13 @@ class ChatRoom < ApplicationRecord
     end
   end
 
-  def send_chatroom(chatroom, chatroom_hash, current_user)
-    NotificationsChannel.broadcast_to(current_user, chatroom_hash)
-    NotificationsChannel.broadcast_to(chatroom.users.first, chatroom_hash)
+  def send_chatroom(chatroom, chatroom_hash, chatroom_info)
+    NotificationsChannel.broadcast_to(chatroom.users.first, chatroom_info)
     
     ChatChannel.broadcast_to(chatroom, { 
-      "chat_room" => chatroom, 
+      "chatroom" => chatroom_hash, 
       "users" => chatroom_hash["users"], 
-      "message_type" => "chatroom_receipt"
+      "type" => "chatroom_receipt"
     })
   end
 

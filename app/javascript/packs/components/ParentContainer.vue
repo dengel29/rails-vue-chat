@@ -21,7 +21,8 @@
           chatroom: {
             id: 0
           }
-        }
+        },
+        lastSelectedChatId: null
       }
     },
     computed: {
@@ -35,33 +36,34 @@
         connected() {
           console.log("connected to the chat channel")
           // every time we're connected to a new chat channel (when clicking a chat), the user who
-          // clicked is sent the chat room info with type "chatroom_recipt"
-          this.$cable.perform({
-            channel: 'ChatChannel',
-            action: 'get_chat_room'
-          })
+          // clicked is sent the chat room info with type "chatroom_recipt" 
         },
         rejected() {},
         received(data) {
-          // data received could be either a message or a chatroom
+          // chat channel just does message receipt, at this point. 
+          // chatroom receipt is handled by the notifications channel
+          
           if (data.type === 'message_receipt') {
-            // data.chat_participant_id === this.currentUserId
-            console.log(data)
             if (data.chat_room_id != this.selectedChat.chatroom.id) {
-              // add a border around the chat where data.chat_participant_id === this.users(user => user.id === data.chat_participant_id)
+              // add a border around the chat to indicate a message has been received
               this.addBorder(data.chat_participant_id)
-              this.chats.find(chat => chat.chatroom.id === data.chat_room_id).messages.push(data)
+              
+              // pushing messages into non-focused chat
+              if (this.chats.length > 0 ) {
+                this.chats.find(chat => chat.chatroom.id === data.chat_room_id).chatroom.messages.push(data)
+              }
             } else {
-              this.selectedChat.messages.push(data)
+              this.chats.find(chat => chat.chatroom.id === this.selectedChat.chatroom.id).chatroom.messages.push(data)
             }
           } 
-          // we might be doing the same thing with the notifications channel
-          // else if (data.type === 'chatroom_receipt') {
-          //   console.log(data, "got the chatroom")
-          //   this.chats = this.chats.push(data)
-
-          //   this.selectedChat = data
-          // }
+          // chatroom_receipt is sent when a user clicks, sends down the chatroom with all messages
+          else if (data.type === 'chatroom_receipt') {
+            // guards against duplicating chats when chatreceipt sent out to chatroom more than once
+            if (data.users.some(user => user.id === this.lastSelectedChatId) && !this.chats.some(chat => chat.chatroom.id === data.chatroom.id)) {
+              this.chats.push(data)
+              this.selectedChat = data
+            } 
+          }
         },
         disconnected() {}
       },
@@ -74,22 +76,24 @@
           // notifications can be sent to those initiating chat and those on receiving end of chat
           // notifications have a type, and this will control flow to different actions
 
-          // chatroom_info is sent down when a chat is selected, contains chatroom info
+          // chatroom_info is sent down when another user selects your chat, to notify you they want to talk
+          // DOES NOT send down messages, messages only sent down when a chat is clicked
           if (data.type === 'chatroom_info') {
-            
-            // TODO
-            // put leaf next to name of user who has initiated chat
-            
-            // if the recipient of this notification is the chat initiator (or host), set their selectedChat 
-            // to the one in the data
-              
-            if (this.currentUserId === data.host.id) {
-              this.chats.push(data)
-              this.selectedChat = data
+            console.log(data)
+            if (data.users.some(user => user.id === this.lastSelectedChatId)) {
+              // pushIntoChats(data)
+              this.selectedChat = this.chats.find(chat => chat.chatroom.id === data.id )
             } else {
-              console.log(data, "from the host to the invited")
-              this.addBorder(data.host.id)
-              this.chats.push(data)
+              // pushIntoChats(data)
+              let targetUserId = data.users.find(user => user.id != this.currentUserId).id
+              this.addBorder(targetUserId)
+              // this.subscribeAndPullDownChat(targetUserId)
+              // console.log("subscribing to chat")
+              // this.$cable.subscribe({
+              //   channel: 'ChatChannel',
+              //   host_id: this.currentUserId,
+              //   target_user_id: targetUserId
+              // })
             }
           }
         },
@@ -101,7 +105,7 @@
         },
         rejected() {},
         received(data) {
-          let userElement = Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(data.user.id))
+          let userElement = Array.from(document.querySelectorAll('ul [data-user-id')).find(el => el.dataset.userId === String(data.user.id))
           if (userElement && data.online) {
             let element = document.getElementById(`${data.user.id}-offline-dot`);
             if (element) {
@@ -149,19 +153,13 @@
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
         if (this.selectedChat.users) {
-          this.toggleBackground(this.selectedChat.users[0].id, "off")
+          this.toggleBackground(this.selectedChat.users.find(user => user.id != this.currentUser.id).id, "off")
         }
         this.toggleBackground(data.targetUserId, "on")
-        if (this.chats.length > 0 && this.chats.some(chat => chat.users[0].id === data.targetUserId)) {
-          this.selectedChat = this.chats.find(chat => chat.users[0].id === data.targetUserId)
-        } else {
+    
+        this.lastSelectedChatId = data.targetUserId
 
-          this.$cable.subscribe({
-            channel: 'ChatChannel',
-            host_id: this.currentUserId,
-            target_user_id: data.targetUserId
-          })
-        }
+        this.subscribeAndPullDownChat(data.targetUserId)
       },
       messageSent(data) {    
         // creates a message on the server, using senderId and chatroomId
@@ -179,7 +177,8 @@
         let userElement = this.findUserElement(id)
         if (toggle === "on") {
           userElement.style.background = "darkslateblue";
-          userElement.style.color = "white"
+          userElement.style.color = "white";
+          userElement.style.border = "2px solid darkslategray";
         } else {
           userElement.style.background = "white";
           userElement.style.color = "black"
@@ -187,6 +186,30 @@
       },
       findUserElement(id) {
         return Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(id))
+      },
+      pushIntoChats(data) {
+        // TODO 
+        // write method to take data received from ActionCable action TK and push into this.chats
+      
+        // if (this.chats)
+      },
+      subscribeAndPullDownChat(id) {
+        // this method finds the chat if it's in your chat, or gets the chat + messages if it isnt yet
+        if (this.chats.some(chat => chat.users.some(user => user.id === id))) {
+          // just change selected chat to that chat 
+          console.log('false, not found')
+          this.selectedChat = this.chats.find(chat => chat.users.some(user => user.id === id))
+        } else {
+           this.$cable.subscribe({
+            channel: 'ChatChannel',
+            host_id: this.currentUserId,
+            target_user_id: id
+        })
+            this.$cable.perform({
+            channel: 'ChatChannel',
+            action: 'get_chat_room'
+          })
+        }
       }
      },
   }
