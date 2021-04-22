@@ -7,7 +7,6 @@ before_action :authenticate_user!, only: [:index, :show]
     end
 
     @user = current_user
-    puts current_user
   end
 
   def show 

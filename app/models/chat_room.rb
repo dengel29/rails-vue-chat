@@ -5,7 +5,6 @@ class ChatRoom < ApplicationRecord
 
   def self.find_or_create_by_host_and_invited(host_id, invited_id)
     # create new chatroom with current user, target user
-    puts
     existing_chat_room = User.find(host_id).chat_rooms.includes(:users).where(users: {id: invited_id})[0]
     
     if existing_chat_room

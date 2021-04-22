@@ -1,5 +1,4 @@
 class ChatChannel < ApplicationCable::Channel
-  # after_subscribe :send_chat_room_id
   def subscribed
     stream_for chatroom
   end
@@ -17,7 +16,7 @@ class ChatChannel < ApplicationCable::Channel
     end
   end
 
-  def get_chat_room
+  def get_chatroom
     cr = chatroom
     combined_users = cr.users.as_json 
     combined_users = combined_users << User.find(params["host_id"]).as_json

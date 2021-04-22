@@ -35,8 +35,6 @@
       ChatChannel: {
         connected() {
           console.log("connected to the chat channel")
-          // every time we're connected to a new chat channel (when clicking a chat), the user who
-          // clicked is sent the chat room info with type "chatroom_recipt" 
         },
         rejected() {},
         received(data) {
@@ -79,21 +77,11 @@
           // chatroom_info is sent down when another user selects your chat, to notify you they want to talk
           // DOES NOT send down messages, messages only sent down when a chat is clicked
           if (data.type === 'chatroom_info') {
-            console.log(data)
             if (data.users.some(user => user.id === this.lastSelectedChatId)) {
-              // pushIntoChats(data)
               this.selectedChat = this.chats.find(chat => chat.chatroom.id === data.id )
             } else {
-              // pushIntoChats(data)
               let targetUserId = data.users.find(user => user.id != this.currentUserId).id
               this.addBorder(targetUserId)
-              // this.subscribeAndPullDownChat(targetUserId)
-              // console.log("subscribing to chat")
-              // this.$cable.subscribe({
-              //   channel: 'ChatChannel',
-              //   host_id: this.currentUserId,
-              //   target_user_id: targetUserId
-              // })
             }
           }
         },
@@ -187,17 +175,10 @@
       findUserElement(id) {
         return Array.from(document.querySelectorAll('[data-user-id')).find(el => el.dataset.userId === String(id))
       },
-      pushIntoChats(data) {
-        // TODO 
-        // write method to take data received from ActionCable action TK and push into this.chats
-      
-        // if (this.chats)
-      },
       subscribeAndPullDownChat(id) {
         // this method finds the chat if it's in your chat, or gets the chat + messages if it isnt yet
         if (this.chats.some(chat => chat.users.some(user => user.id === id))) {
           // just change selected chat to that chat 
-          console.log('false, not found')
           this.selectedChat = this.chats.find(chat => chat.users.some(user => user.id === id))
         } else {
            this.$cable.subscribe({
@@ -207,7 +188,7 @@
         })
             this.$cable.perform({
             channel: 'ChatChannel',
-            action: 'get_chat_room'
+            action: 'get_chatroom'
           })
         }
       }
