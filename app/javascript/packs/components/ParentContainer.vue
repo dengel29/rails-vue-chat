@@ -85,7 +85,7 @@
 
           // chatroom_info is sent down when another user selects your chat, to notify you they want to talk
           // DOES NOT send down messages, messages only sent down when a chat is clicked
-          if (data.type === 'chatroom_info') {
+          if (data.type === 'chatroom_info') {x
             if (data.users.some(user => user.id === this.lastSelectedChatId)) {
               this.selectedChat = this.chats.find(chat => chat.chatroom.id === data.id )
             } else {
