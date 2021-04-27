@@ -4,8 +4,8 @@
       ref="chatcontainer"
       class="chat-box__container">
       <div class="messages__container">
-        <div class="messages__inner-wrapper" id="append" :data-me="currentUser.username" :data-them="selectedChat.users[0].username">
-          <div class="messages__inner"><div
+        <div class="messages__inner-wrapper" :data-me="currentUser.username" :data-them="selectedChat.users[0].username">
+          <div class="messages__inner" ref="messagesinner"><div
               v-for="message in selectedChat.chatroom.messages" 
               :key="message.id" :data-message-id="message.id" 
               :data-user-id="message.chat_participant_id"
@@ -43,27 +43,18 @@ export default {
       this.$emit("buttonClicked", messageData)
     },
     scrollToElement() {
-      const el = this.$refs.scrollToMe;
-
-      if (el) {
-        // Use el.scrollIntoView() to instantly scroll to the element
-        el.scrollIntoView({behavior: 'smooth'});
+     this.$nextTick(function () {
+      if (this.$refs.messagesinner.hasChildNodes()) {
+        this.$refs.messagesinner.lastElementChild.scrollIntoView()
       }
+    })
     }
   },
   mounted() {
-    this.$nextTick(function () {
-      if (document.querySelector('.messages__inner').hasChildNodes()) {
-        document.querySelector('.messages__inner').lastElementChild.scrollIntoView()
-      }
-    })
+    this.scrollToElement();
   },
   updated() {
-    this.$nextTick(function () {
-      if (document.querySelector('.messages__inner').hasChildNodes()) {
-        document.querySelector('.messages__inner').lastElementChild.scrollIntoView()
-      }
-    })
+    this.scrollToElement();
   }
 
 }

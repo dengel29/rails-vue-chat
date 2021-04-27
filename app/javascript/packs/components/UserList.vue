@@ -5,10 +5,12 @@
       <ul>
         <li 
           v-for="user in users" 
-          v-bind:class="[loadingUserId === user.id ? disabled : '']"
           :key="user.id" 
           :data-user-id="user.id" 
           @click="handleClick($event)">
+          <div class="online-indicator"
+
+          ></div>
           {{user.username}}
         </li>
       </ul>
@@ -20,24 +22,17 @@
 export default {
   data: function () {
     return {
-      currentUserId: null,
-      disabled: 'disabled'
+      currentUserId: null
     }
   },
-  props: ["users", "currentUser", "loadingUserId"],
+  props: ["users", "currentUser"],
   methods: {
     handleClick: function(e) {
-      if (!Array.from(e.target.classList).includes('disabled')) {
-        let targetUserId = Number(e.target.dataset.userId)
-        this.$emit("buttonClicked", {
-          targetUserId: targetUserId
-        })
-      } else {
-        console.log('cant print doing work')
-      }
-
+      let targetUserId = Number(e.target.dataset.userId)
+      this.$emit("buttonClicked", {
+        targetUserId: targetUserId
+      })
     }
-
   },
   mounted() {
     this.currentUserId = this.currentUser.id
@@ -93,9 +88,5 @@ export default {
     color: white;
     background-color: darkslategray;
     border:2px solid white;
-  }
-
-  .disabled {
-    cursor:not-allowed
   }
 </style>

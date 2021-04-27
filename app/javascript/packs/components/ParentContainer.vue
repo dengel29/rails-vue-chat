@@ -2,13 +2,13 @@
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
     <user-list 
       :users="users" 
+      :key="userListComponentKey"
       @buttonClicked="chatSelected" 
       :current-user="currentUser"></user-list>   
       <chat-box 
         v-if="chats.length > 0 && selectedChat.id != 0"
         :selectedChat="selectedChat" 
         :current-user="currentUser"
-        :loading-user-id="loadingUserId"
         @buttonClicked="messageSent" 
         >
       </chat-box> 
@@ -26,6 +26,7 @@
             id: 0
           }
         },
+        userListComponentKey: 0,
         lastSelectedChatId: null,
         loadingUserId: null
       }
@@ -60,8 +61,10 @@
           } 
           // chatroom_receipt is sent when a user clicks, sends down the chatroom with all messages
           else if (data.type === 'chatroom_receipt') {
+            console.log('received a whole ass chat')
+            console.log(data)
             // guards against duplicating chats when chatreceipt sent out to chatroom more than once
-            if (!this.chats.some(chat => chat == data)) {
+            if (!this.chats.some(chat => chat.chatroom.id == data.chatroom.id)) {
               this.chats.push(data)
             } 
             if (data.users.some(user => user.id === this.lastSelectedChatId)) {
@@ -99,36 +102,12 @@
         },
         rejected() {},
         received(data) {
-          let userElement = Array.from(document.querySelectorAll('ul [data-user-id')).find(el => el.dataset.userId === String(data.user.id))
-          if (userElement && data.online) {
-            let element = document.getElementById(`${data.user.id}-offline-dot`);
-            if (element) {
-              element.remove()
-            }
-            let div = document.createElement('div')
-            div.style.height = "50%";
-            div.id = `${data.user.id}-online-dot`
-            div.style.width = "10px";
-            div.style.borderRadius = "50%"
-            div.style.border = "1px solid green"
-            div.style.background = "green"
-            div.style.position = "absolute"
-            userElement.insertAdjacentElement('afterbegin', div)
-          } else if (userElement && !data.online) {
-            let element = document.getElementById(`${data.user.id}-online-dot`);
-            if (element) {
-              element.remove()
-            }
-            let div = document.createElement('div')
-            div.id = `${data.user.id}-offline-dot`
-            div.style.height = "50%";
-            div.style.width = "10px";
-            div.style.borderRadius = "50%"
-            div.style.border = "1px solid red"
-            div.style.background = "red"
-            div.style.position = "absolute"
-            userElement.insertAdjacentElement('afterbegin', div)
+          // add a user to the list if they have been added after a user is already signed in
+          if (!this.users.some(user => user.id == data.user.id) && data.online) {
+            this.users.push(data.user)
+            this.userListComponentKey += 1
           }
+          // no action for when a user "signs out", although we could do that for checking data.offline
         },
         disconnected() {}
       }
@@ -143,29 +122,18 @@
       })
       this.currentUserId = this.currentUser.id
     },
-    mounted: function() {
-    //   this.$cable.subscribe({
-    //     channel: 'UserListChannel'
-    //   });
-    //   this.$cable.subscribe({
-    //     channel: 'NotificationsChannel'
-    //   })
-    //   this.currentUserId = this.currentUser.id
-    },
     methods: {
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
         // let userElement = this.findUserElement(data.targetUserId)
-        this.loadingUserId = data.targetUserId
-        if (this.selectedChat.users) {
-          this.toggleBackground(this.selectedChat.users.find(user => user.id != this.currentUser.id).id, "off")
+        if (this.selectedChat.users && this.lastSelectedChatId) {
+          this.toggleBackground(this.lastSelectedChatId, "off")
         }
         this.toggleBackground(data.targetUserId, "on")
     
         this.lastSelectedChatId = data.targetUserId
 
         this.subscribeAndPullDownChat(data.targetUserId)
-        // userElement.classList.add('touched')
       },
       messageSent(data) {    
         // creates a message on the server, using senderId and chatroomId
@@ -206,8 +174,6 @@
             target_user_id: id
           })
         }
-        // this.findUserElement(id).classList.remove('disabled')
-        this.loadingUserId = null;
       }
      },
   }
