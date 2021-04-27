@@ -3,7 +3,12 @@
     <div class="user-list__inner">
       <h1>{{currentUser.username}} in the chats</h1>
       <ul>
-        <li v-for="user in users" :key="user.id" :data-user-id="user.id" @click="handleClick($event)">
+        <li 
+          v-for="user in users" 
+          v-bind:class="[loadingUserId === user.id ? disabled : '']"
+          :key="user.id" 
+          :data-user-id="user.id" 
+          @click="handleClick($event)">
           {{user.username}}
         </li>
       </ul>
@@ -16,9 +21,10 @@ export default {
   data: function () {
     return {
       currentUserId: null,
+      disabled: 'disabled'
     }
   },
-  props: ["users", "currentUser"],
+  props: ["users", "currentUser", "loadingUserId"],
   methods: {
     handleClick: function(e) {
       if (!Array.from(e.target.classList).includes('disabled')) {

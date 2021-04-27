@@ -1,4 +1,6 @@
 class ChatChannel < ApplicationCable::Channel
+  after_subscribe :get_chatroom
+
   def subscribed
     stream_for chatroom
   end
@@ -22,8 +24,8 @@ class ChatChannel < ApplicationCable::Channel
     combined_users = combined_users << User.find(params["host_id"]).as_json
     type = { "type" => "chatroom_info" }
     users = { "users" => combined_users }
-    ch = cr.as_json
     messages = {"messages" => chatroom.messages.as_json}
+    ch = cr.as_json
     chatroom_info = {}.merge(users, type, ch)
     chatroom_hash = chatroom_info.merge(messages)
     
@@ -37,7 +39,16 @@ class ChatChannel < ApplicationCable::Channel
   private 
 
   def chatroom
-    ChatRoom.find_or_create_by_host_and_invited(params['host_id'], params['target_user_id'])
+    existing_chat_room = current_user.chat_rooms.includes(:users).where(users: {id: params["target_user_id"]})[0]
+    
+    if existing_chat_room
+      return existing_chat_room
+    else
+      new_chat_room = ChatRoom.create!
+      ChatParticipant.create!(user: current_user, chat_room: new_chat_room)
+      ChatParticipant.create!(user: User.find(params["target_user_id"]), chat_room: new_chat_room)
+      return new_chat_room
+    end
   end
 
   def subscribe_others

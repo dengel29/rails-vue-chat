@@ -1,11 +1,15 @@
 <template>
   <div style="display:grid; grid-template-columns: 20vw 1fr; grid-gap: 20px;">
-    <user-list :users="users" @buttonClicked="chatSelected" :current-user="currentUser"></user-list>   
+    <user-list 
+      :users="users" 
+      @buttonClicked="chatSelected" 
+      :current-user="currentUser"></user-list>   
       <chat-box 
         v-if="chats.length > 0 && selectedChat.id != 0"
         :selectedChat="selectedChat" 
-        @buttonClicked="messageSent" 
         :current-user="currentUser"
+        :loading-user-id="loadingUserId"
+        @buttonClicked="messageSent" 
         >
       </chat-box> 
   </div>
@@ -22,7 +26,8 @@
             id: 0
           }
         },
-        lastSelectedChatId: null
+        lastSelectedChatId: null,
+        loadingUserId: null
       }
     },
     computed: {
@@ -40,7 +45,6 @@
         received(data) {
           // chat channel just does message receipt, at this point. 
           // chatroom receipt is handled by the notifications channel
-          
           if (data.type === 'message_receipt') {
             if (data.chat_room_id != this.selectedChat.chatroom.id) {
               // add a border around the chat to indicate a message has been received
@@ -57,10 +61,12 @@
           // chatroom_receipt is sent when a user clicks, sends down the chatroom with all messages
           else if (data.type === 'chatroom_receipt') {
             // guards against duplicating chats when chatreceipt sent out to chatroom more than once
-            if (data.users.some(user => user.id === this.lastSelectedChatId) && !this.chats.some(chat => chat.chatroom.id === data.chatroom.id)) {
+            if (!this.chats.some(chat => chat == data)) {
               this.chats.push(data)
-              this.selectedChat = data
             } 
+            if (data.users.some(user => user.id === this.lastSelectedChatId)) {
+              this.selectedChat = data
+            }
           }
         },
         disconnected() {}
@@ -128,8 +134,8 @@
       }
     },
     props: ["users", "currentUser"],
-    mounted: function() {
-      this.$cable.subscribe({
+    created: function() {
+       this.$cable.subscribe({
         channel: 'UserListChannel'
       });
       this.$cable.subscribe({
@@ -137,12 +143,20 @@
       })
       this.currentUserId = this.currentUser.id
     },
+    mounted: function() {
+    //   this.$cable.subscribe({
+    //     channel: 'UserListChannel'
+    //   });
+    //   this.$cable.subscribe({
+    //     channel: 'NotificationsChannel'
+    //   })
+    //   this.currentUserId = this.currentUser.id
+    },
     methods: {
       chatSelected(data) {
         // begins a subscription to a chatroom when one is clicked
-        console.log('printPRINT')
-        let userElement = this.findUserElement(data.targetUserId)
-        userElement.classList.add('disabled')
+        // let userElement = this.findUserElement(data.targetUserId)
+        this.loadingUserId = data.targetUserId
         if (this.selectedChat.users) {
           this.toggleBackground(this.selectedChat.users.find(user => user.id != this.currentUser.id).id, "off")
         }
@@ -151,7 +165,7 @@
         this.lastSelectedChatId = data.targetUserId
 
         this.subscribeAndPullDownChat(data.targetUserId)
-        userElement.classList.add('touched')
+        // userElement.classList.add('touched')
       },
       messageSent(data) {    
         // creates a message on the server, using senderId and chatroomId
@@ -181,21 +195,19 @@
       },
       subscribeAndPullDownChat(id) {
         // this method finds the chat if it's in your chat, or gets the chat + messages if it isnt yet
-        if (this.chats.some(chat => chat.users.some(user => user.id === id))) {
+        let chatFound = this.chats.find(chat => chat.users.some(user => user.id === id))
+        if (chatFound) {
           // just change selected chat to that chat 
-          this.selectedChat = this.chats.find(chat => chat.users.some(user => user.id === id))
+          this.selectedChat = chatFound
         } else {
-           this.$cable.subscribe({
+          this.$cable.subscribe({
             channel: 'ChatChannel',
             host_id: this.currentUserId,
             target_user_id: id
-        })
-            this.$cable.perform({
-            channel: 'ChatChannel',
-            action: 'get_chatroom'
           })
         }
-        this.findUserElement(id).classList.remove('disabled')
+        // this.findUserElement(id).classList.remove('disabled')
+        this.loadingUserId = null;
       }
      },
   }
