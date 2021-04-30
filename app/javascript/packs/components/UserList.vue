@@ -1,16 +1,22 @@
 <template>
   <div class="user-list__container">
     <div class="user-list__inner">
-      <h1>{{currentUser.username}} in the chats</h1>
-      <ul>
+      <!-- <transition name="fade">
+        <div class="loading-overlay" v-show="isLoading"> 
+          <div></div>
+        </div>
+      </transition> -->
+      <transition name="fade">
+      <h1 v-if="!isLoading">{{currentUser.username}} in the chats</h1>
+      <h1 class="loading-title" v-if="isLoading">Finding chat...</h1>
+      </transition>
+      <ul :class="[isLoading ? disabledClass : '']">
         <li 
           v-for="user in users" 
           :key="user.id" 
-          :data-user-id="user.id" 
+          :data-user-id="user.id"
+          :class="[isLoading ? disabledClass : '']" 
           @click="handleClick($event)">
-          <div class="online-indicator"
-
-          ></div>
           {{user.username}}
         </li>
       </ul>
@@ -22,10 +28,11 @@
 export default {
   data: function () {
     return {
-      currentUserId: null
+      currentUserId: null,
+      disabledClass: 'disabled',
     }
   },
-  props: ["users", "currentUser"],
+  props: ["users", "currentUser", "isLoading"],
   methods: {
     handleClick: function(e) {
       let targetUserId = Number(e.target.dataset.userId)
@@ -33,6 +40,9 @@ export default {
         targetUserId: targetUserId
       })
     }
+  },
+  created() {
+    this.isLoading = this.isLoading
   },
   mounted() {
     this.currentUserId = this.currentUser.id
@@ -45,9 +55,18 @@ export default {
     border-right: 5px solid darkslateblue
   }
   .user-list__inner {
-   overflow-y: scroll;
+    overflow-y: scroll;
     height: 100vh;
+    position:relative;
   }
+  /* .loading-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 1);
+    opacity: 0.5;
+    position:absolute;
+    z-index: 2; 
+  } */
   h1 {
       margin-top: 0;
     font-size: 1.6em;
@@ -81,12 +100,32 @@ export default {
 
   li:hover {
     color: rgb(218, 199, 199);
-    background-color: rgba(18, 31, 31, 0.454)
+    background-color: rgb(18, 31, 31)
   }
 
   li:active {
     color: white;
     background-color: darkslategray;
     border:2px solid white;
+  }
+
+  ul.disabled {
+    cursor: wait;
+  }
+
+  li.disabled {
+    /* background: darkslategray; */
+    color:grey;
+    pointer-events: none;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 3s ease-in-out;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
   }
 </style>

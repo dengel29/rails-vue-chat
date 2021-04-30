@@ -3,12 +3,19 @@
     <user-list 
       :users="users" 
       :key="userListComponentKey"
-      @buttonClicked="chatSelected" 
-      :current-user="currentUser"></user-list>   
+      :is-loading="isLoading"
+      @buttonClicked="chatSelected"
+      :current-user="currentUser"></user-list>
+      <div class="loading" v-if="isLoading" style="place-self: center">
+        <h1>
+          Finding chat...
+        </h1>
+      </div>   
       <chat-box 
-        v-if="chats.length > 0 && selectedChat.id != 0"
+        v-if="chats.length > 0 && selectedChat.id != 0 && !isLoading"
         :selectedChat="selectedChat" 
         :current-user="currentUser"
+        :loading="loading"
         @buttonClicked="messageSent" 
         >
       </chat-box> 
@@ -28,15 +35,11 @@
         },
         userListComponentKey: 0,
         lastSelectedChatId: null,
-        loadingUserId: null
+        loadingUserId: null,
+        isLoading: false
       }
     },
-    computed: {
-      // TODO
-      // selectedChat() {
-      //   chats.find(chat => chat.id === )
-      // }
-    },
+    computed: {},
     channels: {
       ChatChannel: {
         connected() {
@@ -61,8 +64,6 @@
           } 
           // chatroom_receipt is sent when a user clicks, sends down the chatroom with all messages
           else if (data.type === 'chatroom_receipt') {
-            console.log('received a whole ass chat')
-            console.log(data)
             // guards against duplicating chats when chatreceipt sent out to chatroom more than once
             if (!this.chats.some(chat => chat.chatroom.id == data.chatroom.id)) {
               this.chats.push(data)
@@ -70,6 +71,7 @@
             if (data.users.some(user => user.id === this.lastSelectedChatId)) {
               this.selectedChat = data
             }
+            this.isLoading = false;
           }
         },
         disconnected() {}
@@ -85,7 +87,7 @@
 
           // chatroom_info is sent down when another user selects your chat, to notify you they want to talk
           // DOES NOT send down messages, messages only sent down when a chat is clicked
-          if (data.type === 'chatroom_info') {x
+          if (data.type === 'chatroom_info') {
             if (data.users.some(user => user.id === this.lastSelectedChatId)) {
               this.selectedChat = this.chats.find(chat => chat.chatroom.id === data.id )
             } else {
@@ -121,9 +123,11 @@
         channel: 'NotificationsChannel'
       })
       this.currentUserId = this.currentUser.id
+      this.loading = false
     },
     methods: {
       chatSelected(data) {
+        this.isLoading = true;
         // begins a subscription to a chatroom when one is clicked
         // let userElement = this.findUserElement(data.targetUserId)
         if (this.selectedChat.users && this.lastSelectedChatId) {
@@ -167,6 +171,7 @@
         if (chatFound) {
           // just change selected chat to that chat 
           this.selectedChat = chatFound
+          this.isLoading = false;
         } else {
           this.$cable.subscribe({
             channel: 'ChatChannel',
